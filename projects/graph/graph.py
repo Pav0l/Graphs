@@ -79,13 +79,26 @@ class Graph:
                     s.push(neighbour)
         # print(f'DFT visited: {visited}')
 
-    def dft_recursive(self, starting_vertex):
+    def dft_recursive(self, starting_vertex, visited=None):
         """
         Print each vertex in depth-first order
         beginning from starting_vertex.
         This should be done using recursion.
         """
-        pass  # TODO
+
+        # if the visited not supplied make new set (to fix a python gotcha)
+        if visited is None:
+            visited = set()
+        # Add starting vert to the visited set and print the it
+        visited.add(starting_vertex)
+        print(starting_vertex)
+
+        # loop over each of the verts children
+        for child in self.vertices[starting_vertex]:
+            # if the child is not in the visited set
+            if child not in visited:
+                # recursively call dft on the child and visited set
+                self.dft_recursive(child, visited)
 
     def bfs(self, starting_vertex, destination_vertex):
         """
@@ -139,7 +152,7 @@ class Graph:
         depth-first order.
         """
         stack = Stack()
-        stack.push({"value": starting_vertex, "path": []})
+        stack.push({"value": starting_vertex, "path": set()})
 
         visited = set()
 
@@ -147,8 +160,9 @@ class Graph:
             current_node = stack.stack[-1]
             cn_value = current_node["value"]
             cn_path = current_node["path"]
-            print(f'cn: {current_node}')
 
+            # Remove current node from stack before you add
+            # neighbour nodes in stack
             stack.pop()
 
             if cn_value not in visited:
@@ -156,24 +170,19 @@ class Graph:
 
                 if cn_value == destination_vertex:
                     # add current node as the last node in PATH
-                    cn_path.append(cn_value)
+                    cn_path.add(cn_value)
                     return cn_path
 
                 for neighbour in self.vertices[cn_value]:
                     neighbour_path = cn_path.copy()
-                    print(f'neighbour: {neighbour}, neighbour_path: {neighbour_path}')
-                    neighbour_path.append(cn_value)
-                    print(f'neighbour_path: {neighbour_path}')
+                    neighbour_path.add(cn_value)
 
                     if neighbour == destination_vertex:
-                        neighbour_path.append(neighbour)
+                        neighbour_path.add(neighbour)
                         return neighbour_path
                     else:
-                        stack.push({"value": neighbour, "path": neighbour_path})
-
-                    print(f'stack: {stack.stack}')
-
-
+                        stack.push(
+                            {"value": neighbour, "path": neighbour_path})
 
 
 if __name__ == '__main__':
@@ -210,7 +219,7 @@ if __name__ == '__main__':
         1, 2, 4, 7, 6, 3, 5
         1, 2, 4, 6, 3, 5, 7
     '''
-    # graph.dft(1)
+    graph.dft(1)
 
     '''
     Valid BFT paths:
@@ -227,7 +236,7 @@ if __name__ == '__main__':
         1, 2, 4, 3, 7, 6, 5
         1, 2, 4, 3, 7, 5, 6
     '''
-    # graph.bft(1)
+    graph.bft(1)
 
     '''
     Valid DFT recursive paths:
@@ -236,7 +245,7 @@ if __name__ == '__main__':
         1, 2, 4, 7, 6, 3, 5
         1, 2, 4, 6, 3, 5, 7
     '''
-    # graph.dft_recursive(1)
+    graph.dft_recursive(1)
 
     '''
     Valid BFS path:
