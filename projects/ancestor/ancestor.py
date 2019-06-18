@@ -11,19 +11,6 @@ returns their earliest known ancestor – the one at the farthest distance from 
 If there is more than one ancestor tied for "earliest", return the one with the lowest numeric ID.
 If the input individual has no parents, the function should return -1.
 """
-input_ID = 6
-input_list = [
-    [1, 3],
-    [2, 3],
-    [3, 6],
-    [5, 6],
-    [5, 7],
-    [4, 5],
-    [4, 8],
-    [8, 9],
-    [11, 8],
-    [10, 1]
-]
 
 
 class Graph:
@@ -45,7 +32,7 @@ class Graph:
     def find_ancestor(self, node):
 
         ancestor_distance = []
-        earliest_ancestor = None
+        earliest_ancestor = node
 
         q = Queue()
         q.enqueue([node, ancestor_distance])
@@ -71,25 +58,42 @@ class Graph:
                     parent_path = cn_path.copy()
                     parent_path.append(cn_val)
 
-                    if len(parent_path) > len(ancestor_distance):
-                        ancestor_distance = parent_path
-                        if earliest_ancestor == None or parent <= earliest_ancestor:
-                            earliest_ancestor = parent
-
                     q.enqueue([parent, parent_path])
 
-            print(f'cn path vs anc_dist: {cn_path} - {ancestor_distance}')
-            if len(cn_path) >= len(ancestor_distance):
-                cn_path.append(cn_val)
-                ancestor_distance = cn_path
-                earliest_ancestor = cn_val
+                if self.vertices[cn_val] == set():
+                    cn_path.append(cn_val)
+
+                    if len(cn_path) > len(ancestor_distance):
+                        ancestor_distance = cn_path
+                        earliest_ancestor = cn_val
+                    elif len(cn_path) == len(ancestor_distance) and cn_val < earliest_ancestor:
+
+                        ancestor_distance = cn_path
+                        earliest_ancestor = cn_val
 
             q.dequeue()
+
             print(f'anc: {earliest_ancestor}, dist: {ancestor_distance}')
             print(f'QUE: {q.queue}\n')
 
+        if earliest_ancestor == node and len(ancestor_distance) == 1:
+            return -1
         return earliest_ancestor
 
+
+input_ID = 5
+input_list = [
+    (1, 3),
+    (2, 3),
+    (3, 6),
+    (5, 6),
+    (5, 7),
+    (4, 5),
+    (4, 8),
+    (8, 9),
+    (11, 8),
+    (10, 1)
+]
 
 g = Graph()
 g.add_nodes_and_edges(input_list)
