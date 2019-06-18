@@ -43,16 +43,20 @@ class Graph:
         visited = set()
         # While the queue is not empty
         while q.size() > 0:
-            # Dequeue the first node fron the Queue
-            deq = q.dequeue()
+            # take the last node from the queue (First added)
+            current_node = q.queue[0]
+            print(f'bft: {current_node}')
             # if the first node has not been visited
-            if deq not in visited:
-                # mark as visited
-                visited.add(deq)
-                # then add all of it's neighbours to the back of the queue
-                for neighbour in self.vertices[deq]:
+            if current_node not in visited:
+                # add all of it's neighbours to the back of the queue
+                for neighbour in self.vertices[current_node]:
                     q.enqueue(neighbour)
-        print(f'bft path: {visited}')
+
+                # mark it as visited
+                visited.add(current_node)
+            # remove it from que
+            q.dequeue()
+        # print(f'bft path: {visited}')
 
     def dft(self, starting_vertex):
         """
@@ -68,7 +72,7 @@ class Graph:
             pop = s.pop()
 
             if pop not in visited:
-                print(pop)
+                print(f'DFT: {pop}')
                 visited.add(pop)
 
                 for neighbour in self.vertices[pop]:
@@ -89,7 +93,44 @@ class Graph:
         starting_vertex to destination_vertex in
         breath-first order.
         """
-        pass  # TODO
+        # create new queue
+        que = Queue()
+        # add starting vertex value into queue. set first path as an empty Set
+        que.enqueue({"value": starting_vertex, "path": set()})
+
+        # create visited set to keep track of visited nodes
+        visited = set()
+
+        # loop until the queue is empty
+        while que.size() > 0:
+            # get the next node in queue (the one first in que - FIFO)
+            next_in_que = que.queue[0]
+            # see if we already visited this node
+            if next_in_que["value"] not in visited:
+                # if we did not visit this node yet
+                # add it to the visited list
+                visited.add(next_in_que["value"])
+
+                # if this node is destination node
+                if next_in_que["value"] == destination_vertex:
+                    # add its value to the path set, so it containts the last node
+                    next_in_que["path"].add(next_in_que["value"])
+                    # and return PATH
+                    return next_in_que["path"]
+
+                # else add all neighbouring nodes to queue
+                for neighbour in self.vertices[next_in_que["value"]]:
+                    # Make a COPY of the PATH set from current node to neighbour nodes
+                    path_to_neighbour = next_in_que["path"].copy()
+                    # and add the current node value into it, so neighbouring nodes have path to "parent" node
+                    path_to_neighbour.add(next_in_que["value"])
+
+                    # add neighbouring node to queue
+                    que.enqueue(
+                        {"value": neighbour, "path": path_to_neighbour})
+
+            # remove current node from queue
+            que.dequeue()
 
     def dfs(self, starting_vertex, destination_vertex):
         """
@@ -97,7 +138,42 @@ class Graph:
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        pass  # TODO
+        stack = Stack()
+        stack.push({"value": starting_vertex, "path": []})
+
+        visited = set()
+
+        while stack.size() > 0:
+            current_node = stack.stack[-1]
+            cn_value = current_node["value"]
+            cn_path = current_node["path"]
+            print(f'cn: {current_node}')
+
+            stack.pop()
+
+            if cn_value not in visited:
+                visited.add(cn_value)
+
+                if cn_value == destination_vertex:
+                    # add current node as the last node in PATH
+                    cn_path.append(cn_value)
+                    return cn_path
+
+                for neighbour in self.vertices[cn_value]:
+                    neighbour_path = cn_path.copy()
+                    print(f'neighbour: {neighbour}, neighbour_path: {neighbour_path}')
+                    neighbour_path.append(cn_value)
+                    print(f'neighbour_path: {neighbour_path}')
+
+                    if neighbour == destination_vertex:
+                        neighbour_path.append(neighbour)
+                        return neighbour_path
+                    else:
+                        stack.push({"value": neighbour, "path": neighbour_path})
+
+                    print(f'stack: {stack.stack}')
+
+
 
 
 if __name__ == '__main__':
@@ -134,7 +210,7 @@ if __name__ == '__main__':
         1, 2, 4, 7, 6, 3, 5
         1, 2, 4, 6, 3, 5, 7
     '''
-    graph.dft(1)
+    # graph.dft(1)
 
     '''
     Valid BFT paths:
@@ -151,7 +227,7 @@ if __name__ == '__main__':
         1, 2, 4, 3, 7, 6, 5
         1, 2, 4, 3, 7, 5, 6
     '''
-    graph.bft(1)
+    # graph.bft(1)
 
     '''
     Valid DFT recursive paths:
@@ -166,11 +242,11 @@ if __name__ == '__main__':
     Valid BFS path:
         [1, 2, 4, 6]
     '''
-    # print(graph.bfs(1, 6))
+    print(graph.bfs(1, 6))
 
     '''
     Valid DFS paths:
         [1, 2, 4, 6]
         [1, 2, 4, 7, 6]
     '''
-    # print(graph.dfs(1, 6))
+    print(graph.dfs(1, 6))
